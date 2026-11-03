@@ -1,0 +1,8 @@
+services:
+  silverbullet:
+    image: ghcr.io/silverbulletmd/silverbullet:latest
+    restart: unless-stopped
+    ports:
+      - "3080:3000"
+    volumes:
+      - /root/storage/syncthing/datos/Notes/Personal:/space

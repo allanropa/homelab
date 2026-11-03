@@ -1,0 +1,123 @@
+# Home — Landing page / directory of homelab endpoints
+home.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    root * /srv/landing
+    file_server
+}
+
+# Vaultwarden — Password manager (Bitwarden-compatible) on :8080
+vault.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8080
+}
+
+# Syncthing — Continuous peer-to-peer file synchronization on :8384
+sync.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8384
+}
+
+# Navidrome — Self-hosted music streaming server (Subsonic-compatible) on :4533
+music.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:4533
+}
+
+# Radicale — Lightweight CalDAV/CardDAV calendar & contacts server on :5232
+cal.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:5232 {
+        header_up X-Forwarded-Host cal.lan.rpamplona.com
+        header_up X-Forwarded-Port 5232
+    }
+}
+
+# Glances — System/Docker monitoring dashboard on :61208
+info.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:61208
+}
+
+# SilverBullet — Markdown-based personal note-taking/wiki on :3080
+note.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:3080
+}
+
+# Immich — Self-hosted photo & video backup (Google Photos alternative) on :2283
+photos.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:2283
+}
+
+# Jellyfin — Free software media system (movies / TV / music streaming) on :8096
+jellyfin.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8096
+}
+
+# qBittorrent — BitTorrent client with web UI on :8090
+qbittorrent.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8090
+}
+
+# Radarr — Automatic movie management & downloader on :7878
+radarr.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:7878
+}
+
+# Sonarr — Automatic TV show management & downloader on :8989
+sonarr.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8989
+}
+
+# Prowlarr — Indexer manager/proxy for Sonarr, Radarr, etc. on :9696
+prowlarr.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:9696
+}
+
+# Personal Expense Tracker - React frontend on :5173
+expenses.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:5173
+}
+
+# Personal Expense Tracker API - FastAPI backend on :8000
+expenses-api.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy localhost:8000
+}

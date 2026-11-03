@@ -1,0 +1,23 @@
+services:
+  radicale:
+    image: tomsquest/docker-radicale:latest
+    container_name: radicale
+    ports:
+      - 5232:5232
+    volumes:
+      - /srv/homelab/radicale/data:/data
+      - ./config:/config:ro
+      - /etc/homelab/secrets/radicale/users:/etc/radicale/users:ro
+    restart: unless-stopped
+    init: true
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+      - KILL
+

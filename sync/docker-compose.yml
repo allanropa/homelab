@@ -1,0 +1,22 @@
+services:
+  syncthing:
+    image: lscr.io/linuxserver/syncthing:latest
+    container_name: syncthing
+    hostname: raspberrypi-sync # Nombre que verás en otros dispositivos
+    environment:
+      - PUID=1000   # User ID (dietpi)
+      - PGID=1000   # Group ID (dietpi)
+      - TZ=America/Bogota
+    volumes:
+      # Configuración (guárdala en la SD o en el disco, aquí la pongo local)
+      - /srv/homelab/sync:/config
+      # MAPEO DEL DISCO EXTERNO
+      # Izquierda: Ruta real en tu Pi (Host)
+      # Derecha: Ruta virtual dentro del contenedor
+      - /root/storage/syncthing:/data/boveda
+    ports:
+      - 8384:8384 # Web UI
+      - 22000:22000/tcp # Tráfico de sincronización
+      - 22000:22000/udp # Tráfico de sincronización
+      - 21027:21027/udp # Descubrimiento local
+    restart: unless-stopped

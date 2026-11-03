@@ -1,0 +1,15 @@
+services:
+  caddy:
+    build: .
+    restart: unless-stopped
+    network_mode: "host"  # <--- Add this
+    environment:
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:?Required}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./landing:/srv/landing:ro
+      - /srv/homelab/caddy/caddy_config:/config
+      - /srv/homelab/caddy/caddy_data:/data  # <--- This mounts your rescued folder!
+volumes:
+  caddy_config:
+  caddy_data:

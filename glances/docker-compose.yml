@@ -1,0 +1,15 @@
+services:
+  glances:
+    image: nicolargo/glances:latest
+    container_name: glances
+    pid: host
+    network_mode: host
+    environment:
+      # El flag -w levanta el servidor web integrado
+      - "GLANCES_OPT=-w"
+    volumes:
+      # Esto permite que Glances lea el consumo de tus otros contenedores
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Esto ayuda a que identifique correctamente el OS base (DietPi)
+      - /etc/os-release:/etc/os-release:ro
+    restart: unless-stopped

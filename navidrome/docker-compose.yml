@@ -1,0 +1,19 @@
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: 1000:1000 # Importante: Corre como usuario 'dietpi' para leer el disco
+    ports:
+      - "4533:4533" # Puerto estándar de Navidrome
+    restart: unless-stopped
+    environment:
+      # Opcional: Ajusta la frecuencia de escaneo (1h por defecto)
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ""
+    volumes:
+      # Dónde guarda su base de datos y cache (en la SD o disco)
+      - /srv/homelab/navidrome:/data
+      # Dónde está tu música REAL (Solo lectura por seguridad)
+      - /root/storage/syncthing/music:/music:ro

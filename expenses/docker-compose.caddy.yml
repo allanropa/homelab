@@ -1,0 +1,9 @@
+services:
+  backend:
+    environment:
+      COOKIE_SECURE: "true"
+      FRONTEND_ORIGIN: https://expenses.lan.rpamplona.com
+
+  frontend:
+    build:
+      args: {}

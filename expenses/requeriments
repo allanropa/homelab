@@ -1,0 +1,984 @@
+# Personal Expense Tracker — Requirements Specification
+
+**Version:** 1.2  
+**Status:** Initial specification for MVP development  
+**Interface language:** Spanish  
+**Default reporting currency:** COP (Colombian peso)  
+**Default timezone:** `America/Bogota`
+
+# 1. Project Overview
+
+## 1.1. Objective
+
+Develop a personal finance web application that allows users to record income and expenses, manage debit accounts and credit cards, track installment purchases, monitor credit card obligations in multiple currencies, create budgets, and review financial summaries.
+
+The application must prioritize:
+
+- Ease of use.
+- Accurate financial calculations and balances.
+- Clear separation between spending, cash flow, available funds, and debt.
+- Support for credit cards with balances in multiple currencies, initially COP and USD.
+- Flexible budgeting without automatically blocking transactions.
+- Privacy and strict isolation of user data.
+- Simple deployment, maintenance, and future extensibility.
+
+## 1.2. Initial Assumptions
+
+- The application is intended for personal finance management.
+- Multiple users are supported, with each user's financial data isolated.
+- Financial transactions are entered manually.
+- The application is a responsive web application.
+- The default reporting currency is COP.
+- Initially supported currencies include COP and USD.
+- The default timezone is `America/Bogota`.
+- No automatic bank integrations are required for the MVP.
+- No native mobile application is required.
+- The application must run locally or on a self-hosted server using Docker Compose.
+- The architecture must remain simple and avoid unnecessary infrastructure.
+
+# 2. Functional Requirements
+
+## FR-001. User Authentication and Authorization
+
+The application must support:
+
+- User registration.
+- Login and logout.
+- Basic profile management.
+- Password changes.
+- Secure password storage.
+- Isolation of financial data between users.
+- Authorization checks for every protected resource.
+
+Users must not be able to read, modify, or delete financial information belonging to other users.
+
+Complex administrative roles are not required for the MVP.
+
+## FR-002. Income and Expense Management
+
+Users must be able to create, view, edit, and delete income and expense transactions.
+
+Each transaction must include:
+
+- Transaction type: income or expense.
+- Amount.
+- Currency.
+- Transaction date.
+- Associated account or financial instrument, where applicable.
+- Category.
+- Optional description.
+- Optional notes.
+- Creation and last modification timestamps.
+
+### Business Rules
+
+- Transaction amounts must be greater than zero.
+- Currency must be explicitly defined.
+- Each transaction must belong to the authenticated user.
+- Categories must be reusable and configurable.
+- Transactions must be filterable by date, type, category, account, and payment method.
+- Changes must be reflected in all affected balances, budgets, and reports.
+- Related financial operations must be atomic.
+- Deleting a transaction must not leave inconsistent balances.
+- Historical transactions must retain sufficient information for auditability.
+
+The application must provide default categories, such as food, housing, transportation, healthcare, entertainment, utilities, salary, and other income. Users must be able to create custom categories.
+
+## FR-003. Debit Accounts and Cash
+
+Users must be able to manage accounts representing available funds.
+
+Each account must include:
+
+- Name.
+- Type: savings, checking, cash, or another supported type.
+- Currency.
+- Opening balance.
+- Opening balance date.
+- Status: active or archived.
+- Optional description.
+
+### Features
+
+- Create, view, edit, and archive accounts.
+- View current balances.
+- View transaction history.
+- Record income and expenses.
+- Record transfers.
+- Filter transactions by period.
+
+### Business Rules
+
+- The account balance must be reproducible from the opening balance and subsequent account movements.
+- The opening balance must have a defined effective date.
+- Accounts with historical transactions must not be deleted in a way that destroys financial history.
+- Account operations must respect the account's currency.
+- Cross-currency operations must explicitly record the conversion.
+
+## FR-004. Credit Card Management
+
+Users must be able to create and manage credit cards.
+
+Each credit card must include:
+
+- Display name.
+- Optional issuing bank.
+- Statement closing day.
+- Payment due day.
+- Optional credit limit.
+- Supported currencies.
+- Configurable interest rate settings.
+- Interest rate periodicity and calculation method.
+- Status: active or archived.
+- Optional description.
+
+### Features
+
+- Create, view, edit, and archive credit cards.
+- View purchases and charges.
+- View outstanding debt by currency.
+- View outstanding installments.
+- View recorded payments.
+- View the next statement closing date and payment due date.
+- View available credit when the applicable limit is known.
+- View upcoming payment obligations.
+- View recorded interest and fees.
+
+### Business Rules
+
+- A credit card represents one financial instrument and may hold balances in multiple currencies.
+- Each purchase must preserve its original amount and currency.
+- Credit limits must be associated with the applicable currency or currency-specific limit structure.
+- Balances denominated in different currencies must never be added directly.
+- Changes to card configuration must not incorrectly alter historical financial calculations.
+- Purchases and credit card payments must be treated as different financial events.
+
+## FR-005. Card-Level Interest Configuration
+
+Interest rates must be configured at the credit card level, not independently for each purchase.
+
+Each card's interest configuration must support:
+
+- Interest rate.
+- Rate type, such as nominal or effective.
+- Rate periodicity, such as monthly or annual.
+- Interest calculation method.
+- Currency or currency-specific applicability, where necessary.
+- Effective date and validity period.
+- Support for interest-free purchases.
+
+### Business Rules
+
+- Purchases must use the card's applicable financing conditions at the time of purchase.
+- A purchase may have one installment or multiple installments.
+- The number of installments must not require a separate interest rate configuration for each purchase.
+- Interest-free purchases must be supported.
+- Changes to a card's interest rate must preserve the historical conditions required to reproduce previous calculations.
+- Future rate changes must follow the configured validity rules and must not indiscriminately modify historical purchases.
+- Estimated interest must be distinguishable from interest actually charged by the bank.
+- The calculation method must be documented and covered by automated tests.
+
+When the bank charges interest, fees, or other amounts different from the estimates, users must be able to record the actual amounts.
+
+The system must not assume that all banks or cards apply identical financing rules.
+
+## FR-006. Multi-Currency Credit Card Balances
+
+A single credit card must support outstanding obligations in multiple currencies, initially COP and USD.
+
+For example, one card may simultaneously have COP 1,200,000 in debt and USD 250 in debt.
+
+### Business Rules
+
+- Every purchase must have an explicit currency.
+- Installments must be calculated in the original purchase currency.
+- Interest and fees must preserve their currency.
+- Payments must identify the currency of the obligation being reduced.
+- Outstanding debt must be displayed separately for each currency.
+- Upcoming statements and payment obligations must display amounts grouped by currency.
+- Credit limits must reflect the actual terms of the card.
+- A USD purchase must not be automatically converted to COP when recorded.
+- Consolidated reports may display equivalent amounts in COP, provided the exchange rate used is identified.
+
+### Currency Conversions
+
+When a transaction converts funds between currencies, the system must record:
+
+- Source currency and amount.
+- Destination currency and amount.
+- Applied exchange rate.
+- Conversion date.
+- Fees, if applicable.
+- Relationship to the relevant purchase, payment, or transfer.
+
+A conversion must not overwrite the original transaction amount.
+
+Converted amounts displayed in reports are informational equivalents and must not automatically change original outstanding balances.
+
+## FR-007. Installment Purchases
+
+Users must be able to record purchases financed through a credit card.
+
+Each purchase must include:
+
+- Associated credit card.
+- Description.
+- Category.
+- Total purchase amount.
+- Currency.
+- Purchase date.
+- Number of installments.
+- Applicable financing conditions.
+- Status.
+- Creation timestamp.
+
+Financing conditions must be derived from the relevant historical card configuration.
+
+### Features
+
+- Register single-installment and multi-installment purchases.
+- Calculate estimated installment amounts.
+- Generate an installment schedule.
+- View outstanding installments.
+- View the remaining purchase balance.
+- View estimated interest.
+- Identify the expected first installment and payment period.
+- Record adjustments when the actual bank statement differs from the estimate.
+
+### Business Rules
+
+- The purchase must be recognized as a consumption expense only once.
+- Installments represent the repayment schedule of an obligation, not new consumption expenses.
+- Calculations must respect the purchase's original currency.
+- Installment totals must reconcile with the financed principal and applicable interest under the selected calculation method.
+- Rounding adjustments must be applied consistently.
+- Historical financing conditions must be preserved.
+- Estimates must be distinguishable from amounts confirmed by bank statements.
+
+## FR-008. Statement Closing Dates, Due Dates, and Alerts
+
+The system must estimate statement closing dates and payment due dates for each credit card.
+
+It must display:
+
+- Next statement closing date.
+- Next payment due date.
+- Purchases expected to appear on the next statement.
+- Expected installments by period.
+- Estimated amount due, grouped by currency.
+- Payments already recorded.
+- Outstanding obligations.
+- Payment status.
+
+### Business Rules
+
+- Statement closing dates and payment due dates are distinct.
+- Purchases must be assigned to the appropriate statement periods according to configured rules.
+- Months with different numbers of days must be handled correctly.
+- Estimated installments must be distinguished from confirmed obligations.
+- Partial payments must be reflected in outstanding balances.
+- Alert lead times must be configurable.
+- The MVP must support in-app alerts.
+- Estimates must be presented as approximations subject to the issuer's actual terms.
+
+## FR-009. Credit Card Payments
+
+Users must be able to record full or partial credit card payments.
+
+Each payment must include:
+
+- Credit card.
+- Source account, where applicable.
+- Payment date.
+- Amount.
+- Currency of the obligation.
+- Source currency and amount when a conversion is involved.
+- Applied exchange rate, when applicable.
+- Fees, if applicable.
+- Optional notes.
+
+### Business Rules
+
+- Payments must reduce the corresponding outstanding debt.
+- Payments must reduce the source account balance.
+- Payments must not be recorded as new consumption expenses.
+- Partial payments must correctly update outstanding obligations.
+- Duplicate application of a payment due to request retries must be prevented.
+- Bank-charged interest and fees must be recordable as separate charges.
+- Payments must be applied to the correct currency and obligation.
+- Operations affecting multiple entities must execute atomically.
+
+If a COP account is used to pay a USD obligation, the system must record the conversion and the corresponding amounts instead of subtracting amounts denominated in different currencies.
+
+## FR-010. Transfers Between Own Accounts
+
+Users must be able to transfer money between accounts belonging to the same user.
+
+Each transfer must include:
+
+- Source account.
+- Destination account.
+- Amount.
+- Currency.
+- Date.
+- Optional description.
+- Conversion information, if applicable.
+
+### Business Rules
+
+- Both accounts must belong to the authenticated user.
+- Transfers must decrease the source balance and increase the destination balance.
+- Transfers must not generate consumption expenses or income.
+- Related balance changes must be atomic.
+- Cross-currency transfers must explicitly record source and destination amounts and the exchange rate.
+- Transfer fees must be recorded separately when applicable.
+
+## FR-011. Budget Management
+
+The application must support two complementary budgeting approaches:
+
+1. **Maximum budgets:** fixed spending limits for a defined period.
+2. **Daily cumulative budgets:** a daily reference amount that accumulates over time, allowing lower-spending days to compensate for higher-spending days.
+
+Maximum budgets must support debit spending, credit card spending, and combined spending.
+
+Both approaches must be usable simultaneously without duplicating financial transactions.
+
+### FR-011.1. Maximum Budgets
+
+Users must be able to define maximum spending limits for a period, with optional restrictions by category and payment method.
+
+Each budget must include:
+
+- Name.
+- Maximum amount.
+- Currency.
+- Period: weekly, monthly, or custom.
+- Start and end dates.
+- Scope: general, category, account, or credit card.
+- Spending type: debit, credit, or both.
+- Alert thresholds.
+- Status: active or archived.
+
+#### Budget Types
+
+**Debit budget:** tracks expenses paid directly through debit accounts or cash.
+
+**Credit budget:** tracks consumption expenses made using credit cards, regardless of when the card is paid.
+
+**Combined budget:** tracks consumption expenses across both debit and credit payment methods.
+
+#### Features
+
+- Create, view, edit, and archive budgets.
+- View the budget limit.
+- View accumulated spending.
+- View the remaining budget.
+- View percentage used.
+- Identify exceeded budgets.
+- Review spending history for the selected period.
+- Filter by category, account, and credit card.
+
+#### Business Rules
+
+- Debit and cash expenses must count toward applicable debit budgets.
+- Credit card purchases must count toward applicable credit budgets on the purchase date.
+- Credit card payments must not count as new debit expenses because the original purchases have already been recognized as consumption.
+- Transfers between the user's own accounts must not count as expenses.
+- A transaction may affect a category budget, a payment-method budget, and a general budget simultaneously. These are separate analytical views of the same transaction.
+- The transaction must not be duplicated in the financial history.
+- Users must be allowed to record additional expenses after exceeding a budget.
+- Expenses in other currencies must be converted explicitly and traceably into the budget currency.
+
+#### Acceptance Criteria
+
+1. Users can create a monthly debit budget.
+2. Users can create a monthly credit budget.
+3. Users can create a combined budget covering both payment methods.
+4. A credit card purchase affects the applicable credit and combined budgets.
+5. A debit or cash expense affects the applicable debit and combined budgets.
+6. Paying a credit card does not consume the debit budget a second time.
+7. Editing or deleting a transaction updates all affected budgets.
+8. Each budget displays spending, limit, remaining amount, and percentage used.
+9. Debit and credit budgets can be reviewed separately and compared for the same period.
+
+### FR-011.2. Daily Cumulative Budgets
+
+Users must be able to define a daily reference spending amount and track cumulative spending over time.
+
+For example, a daily budget of COP 40,000.
+
+The system must display:
+
+- Daily reference amount.
+- Accumulated budget for the selected period.
+- Actual accumulated spending.
+- Cumulative budget balance.
+- Spending excess, if any.
+- Equivalent budget days remaining or consumed in advance.
+- Average daily spending.
+- Daily spending history.
+
+#### Calculations
+
+**Accumulated budget**
+
+Daily budget × number of eligible days in the selected period.
+
+**Budget balance**
+
+Accumulated budget − accumulated spending.
+
+**Equivalent excess days**
+
+Absolute excess amount ÷ daily budget.
+
+A positive balance indicates unused accumulated budget. A negative balance indicates that spending has exceeded the accumulated allowance.
+
+When the balance is negative, the system must display the equivalent number of budget days consumed in advance. When the balance is positive, it must display the remaining accumulated allowance.
+
+The system must retain the cumulative balance across days within the selected period instead of arbitrarily resetting it every day.
+
+#### Configuration
+
+Users must be able to configure:
+
+- Daily reference amount.
+- Currency.
+- Tracking start date.
+- Reporting period.
+- Included or excluded categories.
+- Whether all calendar days count or only user-selected spending days.
+
+The default behavior should count all calendar days, including weekends, while allowing the user to change this setting.
+
+#### Flexible Tracking
+
+The system must allow users to:
+
+- Spend less than the daily allowance on some days.
+- Spend more than the allowance on other days.
+- Compensate for excess spending through lower-spending days.
+- Review cumulative budget balances.
+- Continue recording expenses regardless of the budget balance.
+- Inspect spending history to understand how the allowance was used.
+
+The system must not block transactions or automatically enforce spending restrictions.
+
+#### Acceptance Criteria
+
+1. Users can configure a daily budget of COP 40,000.
+2. The system calculates the accumulated allowance for any selected period.
+3. If spending exceeds the accumulated allowance, the system displays the excess.
+4. The excess is also expressed as equivalent budget days.
+5. Lower-spending days compensate for excess spending within the configured period.
+6. Users can continue recording expenses after exceeding the budget.
+7. Editing or deleting a transaction updates the calculations.
+8. Credit card payments and internal transfers do not duplicate consumption expenses.
+9. Users can inspect the transactions used in each calculation.
+
+### FR-011.3. Budget Coexistence and Consistency
+
+Maximum budgets and daily cumulative budgets must operate independently while using the same financial transactions as their data source.
+
+A single expense may affect:
+
+- A general maximum budget.
+- A category maximum budget.
+- A debit or credit budget.
+- A daily cumulative budget.
+
+This is intentional because each budget measures a different dimension of spending behavior.
+
+The application must not add the results of different budgets together or treat them as separate expenses.
+
+The application must distinguish between consumption and cash flow:
+
+- **Consumption view:** a credit card purchase is counted on the purchase date.
+- **Cash flow view:** card repayments are reflected in the periods when money leaves the user's accounts.
+
+Installment purchases must not be counted both as a full purchase and as repeated consumption expenses for each installment.
+
+## FR-012. Dashboard and Financial Summaries
+
+The application must provide a dashboard displaying the user's financial position.
+
+It must include:
+
+- Total income for the selected period.
+- Total consumption expenses.
+- Difference between income and expenses.
+- Debit and cash account balances.
+- Outstanding credit card debt by currency.
+- Available credit when determinable.
+- Upcoming estimated payments.
+- Maximum budget summaries.
+- Daily cumulative budget summaries.
+- Spending trends over time.
+
+### Filters
+
+- Current month.
+- Previous month.
+- Custom date range.
+
+### Financial Concepts
+
+**Consumption:** the value of goods and services purchased.
+
+**Cash flow:** money entering or leaving accounts.
+
+**Liquidity:** funds currently available in accounts.
+
+**Debt:** outstanding obligations on credit cards.
+
+The dashboard must distinguish these concepts clearly and allow users to inspect the transactions underlying each indicator.
+
+Consolidated reports may show COP equivalents, identifying the exchange rate used. Original currency balances must always remain accessible.
+
+## FR-013. Transaction History and Search
+
+The application must provide a consolidated transaction history.
+
+Users must be able to:
+
+- Search by description.
+- Filter by date.
+- Filter by account, card, category, and transaction type.
+- Identify installment purchases.
+- Identify credit card payments.
+- Inspect transaction details.
+- Navigate to related entities.
+- View the original currency.
+- Inspect recorded currency conversions.
+
+The history must preserve the relationships needed to explain balances and financial summaries.
+
+## FR-014. Personal Settings
+
+Users must be able to configure:
+
+- Default reporting currency.
+- Timezone.
+- Alert preferences.
+- Custom categories.
+- Basic display preferences.
+
+Changing the reporting currency must not change the original currencies of accounts, purchases, or outstanding debt.
+
+# 3. Technical Requirements
+
+## TR-001. Backend
+
+**Technology:** Python and FastAPI.
+
+Recommended components:
+
+- REST API.
+- Pydantic for input validation.
+- SQLAlchemy for database access.
+- Alembic for schema migrations.
+- FastAPI-generated OpenAPI documentation.
+- Consistent HTTP error handling.
+- Environment-based configuration.
+- Separation between HTTP controllers, business logic, and persistence.
+- Database transactions for related financial operations.
+
+The logic for balances, installments, interest, budgets, and currency conversion must be testable independently of the web interface.
+
+## TR-002. Frontend
+
+**Technology:** React, TypeScript, and Vite.
+
+The interface must be responsive, simple, and maintainable.
+
+Initial views:
+
+- Login and registration.
+- Dashboard.
+- Transactions.
+- Accounts.
+- Credit cards.
+- Credit card details.
+- Purchases and installments.
+- Statement closing and payment calendar.
+- Payments.
+- Budgets.
+- Reports.
+- Settings.
+
+Forms must validate input and display clear success and error messages.
+
+Currency symbols and codes must be displayed explicitly wherever monetary values appear.
+
+## TR-003. Database
+
+**Recommended technology:** PostgreSQL.
+
+PostgreSQL is recommended because it provides transactions, referential integrity, constraints, and appropriate querying and aggregation capabilities.
+
+Requirements:
+
+- Use `NUMERIC` or `DECIMAL` for monetary amounts.
+- Never use floating-point types to store monetary values.
+- Store currency explicitly in monetary entities.
+- Use foreign keys and integrity constraints.
+- Create indexes for common queries.
+- Use versioned migrations.
+- Ensure financial operations are atomic.
+
+Interest rates and exchange rates must be stored with sufficient precision for the defined calculations.
+
+## TR-004. Docker
+
+The project must run using Docker Compose.
+
+Minimum services:
+
+- FastAPI backend.
+- React frontend.
+- PostgreSQL.
+
+Requirements:
+
+- Persistent PostgreSQL volumes.
+- Environment-based configuration.
+- An `.env.example` file without real secrets.
+- Backend health checks and database readiness checks.
+- Documented database migration procedures.
+- Startup and shutdown instructions.
+- Database backup and restoration instructions.
+
+## TR-005. Security
+
+- Secure password hashing.
+- Authentication and authorization enforced by the backend.
+- Ownership checks for every financial resource.
+- Secrets stored in environment variables or an appropriate secret store.
+- Server-side validation.
+- Avoid logging passwords, tokens, or unnecessary financial information.
+- CSRF protection when applicable to the authentication mechanism.
+- HTTPS for production deployments.
+- Secure cookie and session configuration when used.
+
+## TR-006. Testing and Code Quality
+
+The project must include:
+
+- Unit tests for financial calculations.
+- Integration tests for endpoints and persistence.
+- Cross-user authorization tests.
+- Migration tests.
+- Balance consistency tests.
+- Multi-currency calculation tests.
+- Installment and interest calculation tests.
+- Due-date and short-month edge cases.
+- Partial payment and retry tests.
+- Budget calculation tests.
+- Linters and formatters for Python and TypeScript.
+
+Financial tests must verify that balances and totals reconcile with the recorded operations.
+
+# 4. Initial Data Model
+
+The initial data model must consider at least the following entities:
+
+- `User`: user accounts and credentials.
+- `Account`: accounts and opening balances.
+- `CreditCard`: cards and general configuration.
+- `CardCurrency`: supported currencies and currency-specific limits, where applicable.
+- `InterestRateConfiguration`: interest rates and effective periods.
+- `Category`: transaction categories.
+- `Transaction`: financial movements.
+- `CreditPurchase`: financed purchases.
+- `Installment`: scheduled installments.
+- `CardPayment`: credit card payments.
+- `Transfer`: transfers.
+- `ExchangeRate`: recorded exchange rates.
+- `Budget`: maximum and daily cumulative budgets.
+- `NotificationPreference`: alert settings.
+
+The final design should evaluate a shared financial transaction or ledger model with specialized related entities, avoiding duplicated accounting logic.
+
+### Data Model Rules
+
+- Every financial resource must belong to a user.
+- Purchases must preserve their original currency.
+- Installments must be related to their purchase.
+- Purchases must preserve the financing conditions applicable at registration.
+- Payments must be related to the obligations they reduce.
+- Currency conversions must preserve original and converted amounts.
+- Configuration changes must retain the required historical information.
+- Related operations must maintain referential integrity.
+- Budgets must explicitly define their currency, period, scope, and spending criteria.
+
+The final model must be designed before implementing the core financial features.
+
+# 5. Global Financial Consistency Rules
+
+1. Account balances must be reproducible from opening balances and subsequent movements.
+2. A credit card purchase represents consumption and creates a financial obligation.
+3. Repaying that obligation is not a second consumption expense.
+4. Transfers between the user's own accounts do not generate consumption expenses or income.
+5. Scheduled installments must not duplicate the original purchase in consumption reports.
+6. Partial payments must correctly update outstanding obligations.
+7. Monetary values must use decimal precision.
+8. Rounding must follow consistent and documented rules.
+9. Amounts in different currencies must never be added without explicit conversion.
+10. Exchange rates used in financial operations must be recorded.
+11. Configuration changes must not incorrectly modify historical operations.
+12. Related financial operations must be atomic.
+13. Estimates must be distinguishable from bank-confirmed values.
+14. Consolidated reports must identify the reporting currency and exchange rate used.
+15. Original currency balances must always remain available.
+16. Budget results must be reproducible from the transactions, period, and filtering rules used.
+17. A transaction may contribute to multiple budgets without being duplicated in the transaction history.
+18. Credit card payments must not consume debit budgets a second time.
+
+# 6. MVP Scope
+
+The MVP must include:
+
+1. User registration and login.
+2. Debit and cash accounts.
+3. Income and expense tracking.
+4. Categories.
+5. Credit card management.
+6. Card-level interest configuration.
+7. Multi-currency credit card balances in COP and USD.
+8. Single-installment and multi-installment purchases.
+9. Estimated installment and interest calculations.
+10. Statement closing dates and payment due dates.
+11. Full and partial credit card payments.
+12. Explicit currency conversions.
+13. Transfers between accounts.
+14. Maximum budgets for debit spending, credit spending, and combined spending.
+15. Category-based maximum budgets.
+16. Daily cumulative budgets.
+17. Dashboard and financial summaries.
+18. Transaction history and filters.
+19. In-app alerts.
+20. Docker Compose, migrations, and automated tests.
+
+### Out of Scope for the MVP
+
+- Automatic bank integration.
+- Automatic statement imports.
+- Native mobile applications.
+- SMS or WhatsApp notifications.
+- Receipt OCR.
+- AI-powered financial features.
+- Investment portfolio tracking.
+- Advanced loan management.
+- Automatic exchange-rate retrieval from external services.
+- Bank synchronization.
+- Complex shared household finances.
+
+# 7. Implementation Strategy
+
+The coding agent must implement the application in stages.
+
+## Stage 1. Foundations
+
+- Create the project structure.
+- Configure Docker Compose.
+- Configure PostgreSQL.
+- Configure SQLAlchemy and Alembic.
+- Implement authentication and authorization.
+- Establish coding conventions and testing infrastructure.
+
+## Stage 2. Accounts and Transactions
+
+- Implement accounts and categories.
+- Implement income and expenses.
+- Implement balances and transaction history.
+- Implement transfers.
+- Test transaction consistency.
+
+## Stage 3. Credit Cards and Financing
+
+- Implement cards and supported currencies.
+- Implement card-level interest configuration.
+- Implement financed purchases.
+- Implement installments and interest calculations.
+- Implement statement closing dates and due dates.
+- Implement full and partial payments.
+- Implement explicit currency conversions.
+- Test rounding, short months, and multi-currency consistency.
+
+## Stage 4. Budgets and Dashboard
+
+- Implement maximum budgets.
+- Implement debit, credit, and combined budget scopes.
+- Implement category-based budgets.
+- Implement daily cumulative budgets.
+- Implement filters and financial indicators.
+- Implement upcoming payment summaries.
+- Implement consolidated multi-currency reports.
+- Verify that consumption is not double-counted.
+
+## Stage 5. Frontend and Final Validation
+
+- Complete the React views.
+- Improve usability and responsive behavior.
+- Execute automated tests.
+- Verify cross-user data isolation.
+- Document installation, configuration, backups, and restoration.
+- Verify that a clean installation can run using the documentation.
+
+Each stage must finish with functional code, executed tests, and updated documentation before the next stage begins.
+
+# 8. Definition of Done
+
+A feature is considered complete when:
+
+- It satisfies its documented requirements.
+- It validates user input.
+- It follows the defined business rules.
+- Relevant automated tests are included and pass.
+- It does not allow access to another user's data.
+- It is integrated with the frontend when applicable.
+- Required database migrations are included.
+- Existing functionality continues to work.
+- Execution and verification steps are documented.
+
+The coding agent must avoid unnecessary dependencies, services, and architectural complexity. Before making major architectural changes, it must explain the need and justify the decision.
+
+When an ambiguity could affect financial correctness, the agent must document it and request a decision before implementing an irreversible rule.
+
+The agent must not silently invent financial business rules when those rules could affect balances, debt, interest, or budget calculations.
+
+# 9. Addendum — Detail Views and Auditable Balance Adjustments
+
+**Version:** 1.3
+**Status:** Confirmed product extension
+
+## FR-015. Financial Entity Detail Views
+
+The application must provide detail views for accounts, credit cards, and budgets.
+
+### Accounts
+
+The account detail view must display:
+
+- Account identity, type, currency, status, and description.
+- Opening balance and effective date.
+- Current balance calculated by the backend.
+- Complete movement history.
+- Related transactions and balance adjustments.
+
+### Credit Cards
+
+The credit card detail view must display:
+
+- Card configuration and supported currencies.
+- Credit limit and available credit by currency when determinable.
+- Outstanding debt by currency.
+- Interest-rate configurations and validity periods.
+- Purchases, installments, charges, payments, and payment allocations.
+- Balance adjustments and their audit details.
+
+### Budgets
+
+The budget detail view must display:
+
+- Budget configuration and filtering scope.
+- Accumulated limit or allowance for the selected period.
+- Actual spending, balance, percentage used, and excess.
+- Daily history for cumulative budgets.
+- Transactions included in the calculation.
+- Alert status and threshold.
+
+## FR-016. Account Balance Adjustments
+
+Users must be able to reconcile an account to a target balance without modifying historical transactions.
+
+Each adjustment must include:
+
+- Account.
+- Target balance.
+- Adjustment date.
+- Optional description.
+- Creation timestamp.
+
+### Business Rules
+
+- The backend calculates the difference between the current reproducible balance and the target balance.
+- The difference is recorded as a separate auditable balance-adjustment operation.
+- The opening balance and historical movements are never overwritten.
+- Balance adjustments do not generate income, consumption expenses, or budget spending.
+- The operation must be atomic and idempotent when an idempotency key is supplied.
+- A zero-difference adjustment must be rejected.
+
+## FR-017. Credit Card Debt Adjustments
+
+Users must be able to reconcile a credit card debt to a target amount for a specific currency.
+
+### Business Rules
+
+- The target debt and adjustment currency must be explicit.
+- The backend records only the difference as a separate adjustment operation.
+- Historical purchases and payments are never overwritten.
+- Positive adjustments increase debt; negative adjustments reduce debt.
+- Adjustments do not create consumption transactions or budget spending.
+- The resulting debt remains grouped by currency.
+
+## FR-018. Editable Budget Configuration
+
+Users must be able to edit an active budget's configuration, including:
+
+- Name.
+- Target amount.
+- Period dates.
+- Alert threshold.
+- Scope and spending type where valid.
+
+Budget summaries must be recalculated from the unchanged financial transactions and the new configuration.
+
+## FR-019. Frontend Integration
+
+The frontend must provide navigation from list views to account, card, and budget details. Detail views must expose the backend operations for editing configuration and recording auditable adjustments. A visible interface without working persistence and calculation logic is not sufficient.
+
+## FR-020. Budget Consumption Progress
+
+The budget detail view must make consumption progress visible for both maximum and daily cumulative budgets.
+
+It must display:
+
+- Configured limit or daily reference amount.
+- Accumulated allowance for the selected period.
+- Actual accumulated spending.
+- Current balance and excess.
+- Percentage consumed with a visual progress indicator.
+- Spending evolution grouped by day.
+- The transactions contributing to each daily amount.
+
+The calculation must use the same backend budget summary and must update after transactions, edits, deletions, or balance adjustments that affect the selected budget.
+
+## FR-021. Navigation Separation with Modals
+
+The frontend must separate tracking views from detail and configuration views.
+
+- Accounts must expose tracking separately from account details and balance adjustments.
+- Credit cards must expose debt/purchase tracking separately from interest, archival, and debt-adjustment configuration.
+- Budgets must expose consumption tracking separately from budget configuration and editing.
+- Long detail views and transaction histories must open in modals rather than remaining permanently expanded in the main view.
+- Modals must remain usable on mobile screens and must support keyboard dismissal where applicable.
+
+## FR-022. Consistent Segment Entry Structure
+
+The main financial segments must use a consistent entry pattern:
+
+- An initial summary showing the number of items and relevant totals grouped by currency where applicable.
+- A primary list of the segment's items.
+- An `Agregar` action that opens the complete creation form in a modal.
+- An action menu on every item with at least `Ver detalles` and `Configurar` actions where applicable.
+- Detail and configuration actions must use the existing backend persistence and calculation logic.
+
+This structure applies to movements, accounts, credit cards, budgets, and loans.
+
+## FR-023. Contextual Configuration
+
+When configuration is opened from an item's action menu, the item context must be fixed by the route or modal state. The user must not select a second item inside that configuration modal.
+
+Credit card interest configuration must save the rate against the selected card. Every new card purchase must store an immutable snapshot of the applicable rate and financing method used at registration. Changing the card's rate must affect only purchases registered after the new effective date; existing purchases and their schedules must not be recalculated.
