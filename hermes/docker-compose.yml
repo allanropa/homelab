@@ -1,0 +1,19 @@
+services:
+  hermes:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes
+    restart: unless-stopped
+
+    command: gateway run
+
+    volumes:
+      - /srv/homelab/hermes:/opt/data
+
+    env_file:
+      - /etc/homelab/secrets/hermes.env
+    ports:
+      - "127.0.0.1:8642:8642"
+      - "127.0.0.1:9119:9119"
+
+    mem_limit: 2g
+    cpus: 2
