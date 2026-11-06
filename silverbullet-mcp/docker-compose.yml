@@ -1,0 +1,29 @@
+name: silver_bullet_connector
+
+services:
+  mcp:
+    build:
+      context: ${MCP_BUILD_CONTEXT:?MCP_BUILD_CONTEXT debe apuntar al checkout}
+      dockerfile: ${MCP_DOCKERFILE:?MCP_DOCKERFILE debe apuntar al Dockerfile temporal}
+    restart: unless-stopped
+    environment:
+      SILVERBULLET_URL: http://silverbullet:3000
+      MCP_BIND_HOST: silverbullet-mcp-hermes
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      silverbullet: {}
+      hermes_connector:
+        aliases:
+          - silverbullet-mcp-hermes
+
+networks:
+  silverbullet:
+    external: true
+    name: silverbullet_default
+  hermes_connector:
+    external: true
+    name: hermes_silverbullet_connector

@@ -1,0 +1,16 @@
+mcp_servers:
+  silverbullet:
+    url: http://silver_bullet_connector-mcp-1:8000/mcp
+    tools:
+      include:
+        - listar_paginas
+        - buscar_por_clave
+        - notas_relacionadas
+        - tareas_de_entidad
+        - leer_pagina
+        - crear_pagina
+        - leer_pagina_con_revision
+        - actualizar_pagina
+        - buscar
+        - tareas_pendientes
+        - resumen

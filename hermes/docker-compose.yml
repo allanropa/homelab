@@ -8,6 +8,7 @@ services:
 
     volumes:
       - /srv/homelab/hermes:/opt/data
+      - ./managed/config.yaml:/etc/hermes/config.yaml:ro
 
     env_file:
       - /etc/homelab/secrets/hermes.env
@@ -17,3 +18,11 @@ services:
 
     mem_limit: 2g
     cpus: 2
+    networks:
+      - default
+      - silverbullet_connector
+
+networks:
+  silverbullet_connector:
+    external: true
+    name: hermes_silverbullet_connector

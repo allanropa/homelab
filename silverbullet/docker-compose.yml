@@ -3,6 +3,6 @@ services:
     image: ghcr.io/silverbulletmd/silverbullet:latest
     restart: unless-stopped
     ports:
-      - "3080:3000"
+      - "127.0.0.1:3080:3000"
     volumes:
       - /root/storage/syncthing/datos/Notes/Personal:/space
