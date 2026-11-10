@@ -1,0 +1,36 @@
+name: imap_connector
+
+services:
+  mcp:
+    build:
+      context: ${MCP_BUILD_CONTEXT:?MCP_BUILD_CONTEXT debe apuntar al checkout}
+      dockerfile: ${MCP_DOCKERFILE:?MCP_DOCKERFILE debe apuntar al Dockerfile}
+    restart: unless-stopped
+    env_file:
+      - /etc/homelab/secrets/imap-mcp.env
+    environment:
+      MCP_BIND_HOST: 0.0.0.0
+      MCP_PORT: 8000
+      MCP_TRANSPORT: streamable-http
+      IMAP_FINANCIAL_RULES: /app/financial_rules.json
+    volumes:
+      - type: bind
+        source: ./financial_rules.json
+        target: /app/financial_rules.json
+        read_only: true
+        bind:
+          create_host_path: false
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      hermes_connector:
+        aliases:
+          - imap-mcp
+
+networks:
+  hermes_connector:
+    external: true
+    name: hermes_imap_connector

@@ -1,0 +1,5 @@
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+	insteadOf = ssh://git@github.com/
+[credential "https://github.com"]
+	helper = store --file=/opt/data/github-readonly.credentials

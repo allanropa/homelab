@@ -128,3 +128,18 @@ hermes.lan.rpamplona.com {
     }
     reverse_proxy 127.0.0.1:9119
 }
+
+hermes-api.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy 127.0.0.1:8642
+}
+
+# Open WebUI - AI web interface on :3000
+openwebui.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy 127.0.0.1:3000
+}

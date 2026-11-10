@@ -3,12 +3,14 @@ services:
     image: nousresearch/hermes-agent:latest
     container_name: hermes
     restart: unless-stopped
-
     command: gateway run
-
     volumes:
       - /srv/homelab/hermes:/opt/data
       - ./managed/config.yaml:/etc/hermes/config.yaml:ro
+      - ./managed/gitconfig:/etc/hermes/gitconfig:ro
+      - /root/repos:/workspace/repos
+    environment:
+      GIT_CONFIG_GLOBAL: /etc/hermes/gitconfig
 
     env_file:
       - /etc/homelab/secrets/hermes.env
@@ -21,8 +23,17 @@ services:
     networks:
       - default
       - silverbullet_connector
+      - guild_wars_2_connector
+      - imap_connector
+      - openwebui_connector
 
 networks:
   silverbullet_connector:
     external: true
     name: hermes_silverbullet_connector
+  guild_wars_2_connector:
+    name: hermes_guild_wars_2_connector
+  imap_connector:
+    name: hermes_imap_connector
+  openwebui_connector:
+    name: hermes_openwebui_connector

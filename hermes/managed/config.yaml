@@ -14,3 +14,33 @@ mcp_servers:
         - buscar
         - tareas_pendientes
         - resumen
+  guild_wars_2:
+    url: http://guild_wars_2_connector-mcp-1:8000/mcp
+    tools:
+      include:
+        - buscar_logros
+        - logros_casi_completados
+        - consultar_dominios
+        - consultar_personajes
+        - buscar_inventario
+        - consultar_wallet
+        - consultar_trading_post
+        - consultar_wizards_vault
+  imap:
+    url: http://imap-mcp:8000/mcp
+    tools:
+      include:
+        - buscar_correos
+        - leer_correo
+        - buscar_correos_financieros
+  expenses:
+    url: https://expenses-api.lan.rpamplona.com/mcp
+    headers:
+      Authorization: Bearer ${EXPENSES_TOKEN}
+    tools:
+      include:
+        - list_categories
+        - list_accounts
+        - list_cards
+        - list_transactions
+        - create_transaction

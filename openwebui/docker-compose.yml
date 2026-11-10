@@ -1,0 +1,19 @@
+services:
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: openwebui
+    restart: unless-stopped
+    env_file:
+      - /etc/homelab/secrets/openwebui.env
+    ports:
+      - "127.0.0.1:3000:8080"
+    volumes:
+      - /srv/homelab/openwebui:/app/backend/data
+    networks:
+      - default
+      - hermes_connector
+
+networks:
+  hermes_connector:
+    external: true
+    name: hermes_openwebui_connector

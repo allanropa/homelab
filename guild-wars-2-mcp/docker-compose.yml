@@ -1,0 +1,22 @@
+name: guild_wars_2_connector
+
+services:
+  mcp:
+    build:
+      context: ${MCP_BUILD_CONTEXT:?MCP_BUILD_CONTEXT debe apuntar al checkout}
+      dockerfile: ${MCP_DOCKERFILE:?MCP_DOCKERFILE debe apuntar al Dockerfile temporal}
+    restart: unless-stopped
+    env_file:
+      /etc/homelab/secrets/gw2.env
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - hermes_connector
+
+networks:
+  hermes_connector:
+    external: true
+    name: hermes_guild_wars_2_connector
