@@ -10,6 +10,7 @@ BACKUP_DIR="${BACKUP_DIR:-/var/backups/docker-volumes}"
 RETENTION_DAYS="${RETENTION_DAYS:-14}"
 HELPER_IMAGE="${HELPER_IMAGE:-postgres:16-alpine}"
 STOP_CONTAINERS="${STOP_CONTAINERS:-1}"
+STOP_CONTAINERS_BY_NAME="${STOP_CONTAINERS_BY_NAME:-}"
 SKIP="${SKIP:-}"
 EXTRA_DIRS="${EXTRA_DIRS:-}"
 LOG_FILE="${LOG_FILE:-/var/log/docker-volume-backup.log}"
@@ -46,6 +47,16 @@ chmod 755 "$dest"
 failed=0
 
 log "start dest=$dest"
+
+stopped_named_containers=()
+for name in $STOP_CONTAINERS_BY_NAME; do
+  mapfile -t containers < <(docker ps -q --filter "name=^/${name}$")
+  if [[ ${#containers[@]} -gt 0 ]]; then
+    log "stopping configured container $name: ${containers[*]}"
+    docker stop "${containers[@]}" >/dev/null
+    stopped_named_containers+=("${containers[@]}")
+  fi
+done
 
 mapfile -t volumes < <(docker volume ls -q)
 for vol in "${volumes[@]}"; do
@@ -96,6 +107,15 @@ if [[ -n "$EXTRA_DIRS" ]]; then
       failed=1
     fi
   done
+fi
+
+if [[ ${#stopped_named_containers[@]} -gt 0 ]]; then
+  if docker start "${stopped_named_containers[@]}" >/dev/null; then
+    log "started configured containers: ${stopped_named_containers[*]}"
+  else
+    log "FAILED restart for configured containers: ${stopped_named_containers[*]}"
+    failed=1
+  fi
 fi
 
 find "$BACKUP_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +"$RETENTION_DAYS" -print -exec rm -rf {} + | while read -r old; do
