@@ -38,6 +38,20 @@
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 14px;
     }
+    .category { margin-top: 24px; }
+    .category summary {
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      list-style: none;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .category summary::-webkit-details-marker { display: none; }
+    .category summary::before { content: "›"; display: inline-block; margin-right: 8px; transition: transform 120ms ease; }
+    .category[open] summary::before { transform: rotate(90deg); }
     a.card {
       display: block;
       background: var(--panel);
@@ -73,98 +87,131 @@
       <p>Self-hosted services running on the LAN. Click a card to open.</p>
     </header>
 
-    <div class="grid">
-      <a class="card" href="https://vault.lan.rpamplona.com">
-        <div class="name">Vaultwarden</div>
-        <span class="url">vault.lan.rpamplona.com</span>
-        <div class="desc">Password manager (Bitwarden-compatible) with web vault and browser extensions.</div>
-        <div class="port">backend :8080</div>
-      </a>
+    <details class="category" open>
+      <summary>Música</summary>
+      <div class="grid">
+        <a class="card" href="https://music.lan.rpamplona.com">
+          <div class="name">Navidrome</div>
+          <span class="url">music.lan.rpamplona.com</span>
+          <div class="desc">Music streaming server, Subsonic-compatible with mobile apps.</div>
+          <div class="port">backend :4533</div>
+        </a>
+        <a class="card" href="https://ytmusic.lan.rpamplona.com">
+          <div class="name">Yubal</div>
+          <span class="url">ytmusic.lan.rpamplona.com</span>
+          <div class="desc">YouTube Music downloader that adds music directly to the shared library.</div>
+          <div class="port">backend :8001</div>
+        </a>
+        <a class="card" href="https://meta.lan.rpamplona.com">
+          <div class="name">Metadata</div>
+          <span class="url">meta.lan.rpamplona.com</span>
+          <div class="desc">Music library metadata editor.</div>
+          <div class="port">backend :8888</div>
+        </a>
+      </div>
+    </details>
 
-      <a class="card" href="https://sync.lan.rpamplona.com">
-        <div class="name">Syncthing</div>
-        <span class="url">sync.lan.rpamplona.com</span>
-        <div class="desc">Continuous peer-to-peer file synchronization between devices.</div>
-        <div class="port">backend :8384</div>
-      </a>
+    <details class="category" open>
+      <summary>Media</summary>
+      <div class="grid">
+        <a class="card" href="https://photos.lan.rpamplona.com">
+          <div class="name">Immich</div>
+          <span class="url">photos.lan.rpamplona.com</span>
+          <div class="desc">Self-hosted photo and video backup, Google Photos alternative.</div>
+          <div class="port">backend :2283</div>
+        </a>
+        <a class="card" href="https://jellyfin.lan.rpamplona.com">
+          <div class="name">Jellyfin</div>
+          <span class="url">jellyfin.lan.rpamplona.com</span>
+          <div class="desc">Free media system for movies, TV shows and music streaming.</div>
+          <div class="port">backend :8096</div>
+        </a>
+        <a class="card" href="https://qbittorrent.lan.rpamplona.com">
+          <div class="name">qBittorrent</div>
+          <span class="url">qbittorrent.lan.rpamplona.com</span>
+          <div class="desc">BitTorrent client with a built-in web UI.</div>
+          <div class="port">backend :8090</div>
+        </a>
+        <a class="card" href="https://radarr.lan.rpamplona.com">
+          <div class="name">Radarr</div>
+          <span class="url">radarr.lan.rpamplona.com</span>
+          <div class="desc">Automatic movie collection manager: monitors, grabs and organizes files.</div>
+          <div class="port">backend :7878</div>
+        </a>
+        <a class="card" href="https://sonarr.lan.rpamplona.com">
+          <div class="name">Sonarr</div>
+          <span class="url">sonarr.lan.rpamplona.com</span>
+          <div class="desc">Automatic TV show management: monitors, grabs and organizes episodes.</div>
+          <div class="port">backend :8989</div>
+        </a>
+        <a class="card" href="https://prowlarr.lan.rpamplona.com">
+          <div class="name">Prowlarr</div>
+          <span class="url">prowlarr.lan.rpamplona.com</span>
+          <div class="desc">Indexer manager and proxy for Sonarr, Radarr and similar *arrs.</div>
+          <div class="port">backend :9696</div>
+        </a>
+      </div>
+    </details>
 
-      <a class="card" href="https://music.lan.rpamplona.com">
-        <div class="name">Navidrome</div>
-        <span class="url">music.lan.rpamplona.com</span>
-        <div class="desc">Music streaming server, Subsonic-compatible with mobile apps.</div>
-        <div class="port">backend :4533</div>
-      </a>
+    <details class="category" open>
+      <summary>Gestión personal</summary>
+      <div class="grid">
+        <a class="card" href="https://expenses.lan.rpamplona.com">
+          <div class="name">Expenses</div>
+          <span class="url">expenses.lan.rpamplona.com</span>
+          <div class="desc">Personal finance tracker for accounts, expenses, credit cards, installments and budgets.</div>
+          <div class="port">API: expenses-api.lan.rpamplona.com</div>
+        </a>
+        <a class="card" href="https://cal.lan.rpamplona.com">
+          <div class="name">Radicale</div>
+          <span class="url">cal.lan.rpamplona.com</span>
+          <div class="desc">Lightweight CalDAV / CardDAV server for calendars and contacts.</div>
+          <div class="port">backend :5232</div>
+        </a>
+        <a class="card" href="https://note.lan.rpamplona.com">
+          <div class="name">SilverBullet</div>
+          <span class="url">note.lan.rpamplona.com</span>
+          <div class="desc">Markdown-based personal wiki and note-taking app.</div>
+          <div class="port">backend :3080</div>
+        </a>
+        <a class="card" href="https://sync.lan.rpamplona.com">
+          <div class="name">Syncthing</div>
+          <span class="url">sync.lan.rpamplona.com</span>
+          <div class="desc">Continuous peer-to-peer file synchronization between devices.</div>
+          <div class="port">backend :8384</div>
+        </a>
+      </div>
+    </details>
 
-      <a class="card" href="https://expenses.lan.rpamplona.com">
-        <div class="name">Expenses</div>
-        <span class="url">expenses.lan.rpamplona.com</span>
-        <div class="desc">Personal finance tracker for accounts, expenses, credit cards, installments and budgets.</div>
-        <div class="port">API: expenses-api.lan.rpamplona.com</div>
-      </a>
+    <details class="category" open>
+      <summary>Asistente</summary>
+      <div class="grid">
+        <a class="card" href="https://hermes.lan.rpamplona.com">
+          <div class="name">Hermes</div>
+          <span class="url">hermes.lan.rpamplona.com</span>
+          <div class="desc">Personal AI agent gateway.</div>
+          <div class="port">backend :9119</div>
+        </a>
+      </div>
+    </details>
 
-      <a class="card" href="https://cal.lan.rpamplona.com">
-        <div class="name">Radicale</div>
-        <span class="url">cal.lan.rpamplona.com</span>
-        <div class="desc">Lightweight CalDAV / CardDAV server for calendars and contacts.</div>
-        <div class="port">backend :5232</div>
-      </a>
-
-      <a class="card" href="https://info.lan.rpamplona.com">
-        <div class="name">Glances</div>
-        <span class="url">info.lan.rpamplona.com</span>
-        <div class="desc">Real-time system and Docker container monitoring dashboard.</div>
-        <div class="port">backend :61208</div>
-      </a>
-
-      <a class="card" href="https://note.lan.rpamplona.com">
-        <div class="name">SilverBullet</div>
-        <span class="url">note.lan.rpamplona.com</span>
-        <div class="desc">Markdown-based personal wiki and note-taking app.</div>
-        <div class="port">backend :3080</div>
-      </a>
-
-      <a class="card" href="https://photos.lan.rpamplona.com">
-        <div class="name">Immich</div>
-        <span class="url">photos.lan.rpamplona.com</span>
-        <div class="desc">Self-hosted photo and video backup, Google Photos alternative.</div>
-        <div class="port">backend :2283</div>
-      </a>
-
-      <a class="card" href="https://jellyfin.lan.rpamplona.com">
-        <div class="name">Jellyfin</div>
-        <span class="url">jellyfin.lan.rpamplona.com</span>
-        <div class="desc">Free media system for movies, TV shows and music streaming.</div>
-        <div class="port">backend :8096</div>
-      </a>
-
-      <a class="card" href="https://qbittorrent.lan.rpamplona.com">
-        <div class="name">qBittorrent</div>
-        <span class="url">qbittorrent.lan.rpamplona.com</span>
-        <div class="desc">BitTorrent client with a built-in web UI.</div>
-        <div class="port">backend :8090</div>
-      </a>
-
-      <a class="card" href="https://radarr.lan.rpamplona.com">
-        <div class="name">Radarr</div>
-        <span class="url">radarr.lan.rpamplona.com</span>
-        <div class="desc">Automatic movie collection manager: monitors, grabs and organizes files.</div>
-        <div class="port">backend :7878</div>
-      </a>
-
-      <a class="card" href="https://sonarr.lan.rpamplona.com">
-        <div class="name">Sonarr</div>
-        <span class="url">sonarr.lan.rpamplona.com</span>
-        <div class="desc">Automatic TV show management: monitors, grabs and organizes episodes.</div>
-        <div class="port">backend :8989</div>
-      </a>
-
-      <a class="card" href="https://prowlarr.lan.rpamplona.com">
-        <div class="name">Prowlarr</div>
-        <span class="url">prowlarr.lan.rpamplona.com</span>
-        <div class="desc">Indexer manager and proxy for Sonarr, Radarr and similar *arrs.</div>
-        <div class="port">backend :9696</div>
-      </a>
-    </div>
+    <details class="category" open>
+      <summary>Sistema y seguridad</summary>
+      <div class="grid">
+        <a class="card" href="https://vault.lan.rpamplona.com">
+          <div class="name">Vaultwarden</div>
+          <span class="url">vault.lan.rpamplona.com</span>
+          <div class="desc">Password manager (Bitwarden-compatible) with web vault and browser extensions.</div>
+          <div class="port">backend :8080</div>
+        </a>
+        <a class="card" href="https://info.lan.rpamplona.com">
+          <div class="name">Glances</div>
+          <span class="url">info.lan.rpamplona.com</span>
+          <div class="desc">Real-time system and Docker container monitoring dashboard.</div>
+          <div class="port">backend :61208</div>
+        </a>
+      </div>
+    </details>
 
     <footer>
       Served by <code>Caddy</code> &middot; <code>https://home.lan.rpamplona.com</code>

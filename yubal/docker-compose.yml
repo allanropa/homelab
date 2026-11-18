@@ -1,0 +1,16 @@
+services:
+  yubal:
+    image: ghcr.io/guillevc/yubal:latest
+    container_name: yubal
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      YUBAL_TZ: Europe/Madrid
+      YUBAL_AUDIO_FORMAT: mp3
+    ports:
+      - "127.0.0.1:8001:8000"
+    volumes:
+      # Comparte la biblioteca de Navidrome para que los nuevos discos aparezcan al reescanear.
+      - /root/storage/syncthing/music:/app/data
+      - /srv/homelab/yubal/config:/app/config

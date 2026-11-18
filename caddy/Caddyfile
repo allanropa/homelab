@@ -31,6 +31,22 @@ music.lan.rpamplona.com {
     reverse_proxy localhost:4533
 }
 
+# Yubal — YouTube Music downloader on :8001
+ytmusic.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy 127.0.0.1:8001
+}
+
+# Metadata Docker — Music metadata editor on :8888
+meta.lan.rpamplona.com {
+    tls {
+        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+    }
+    reverse_proxy 127.0.0.1:8888
+}
+
 # Radicale — Lightweight CalDAV/CardDAV calendar & contacts server on :5232
 cal.lan.rpamplona.com {
     tls {
@@ -134,12 +150,4 @@ hermes-api.lan.rpamplona.com {
         dns cloudflare {env.CLOUDFLARE_API_TOKEN}
     }
     reverse_proxy 127.0.0.1:8642
-}
-
-# Open WebUI - AI web interface on :3000
-openwebui.lan.rpamplona.com {
-    tls {
-        dns cloudflare {env.CLOUDFLARE_API_TOKEN}
-    }
-    reverse_proxy 127.0.0.1:3000
 }

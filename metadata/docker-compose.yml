@@ -1,0 +1,22 @@
+services:
+  metadata:
+    image: ghcr.io/jonny-ponny/metadata-docker:latest
+    container_name: metadata-docker
+    restart: unless-stopped
+    env_file:
+      - path: /etc/homelab/secrets/metadata.env
+        required: true
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Madrid
+      TOKEN_EXPIRE_HOURS: 12
+      MAX_UPLOAD_MB: 4096
+      CHOWN_MUSIC: "false"
+    ports:
+      - "127.0.0.1:8888:5000"
+    volumes:
+      # Comparte la biblioteca con Navidrome y Yubal; Metadata puede modificar archivos.
+      - /root/storage/syncthing/music:/music
+      - /srv/homelab/metadata/logs:/logs
+      - /srv/homelab/metadata/addons:/app/addons:ro
