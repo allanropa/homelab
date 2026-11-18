@@ -34,8 +34,15 @@ La copia diaria debe incluir estos orígenes:
 
 El inventario actual de `/srv/homelab` incluye PostgreSQL de Expenses e
 Immich, SQLite de Vaultwarden, datos de Radicale, Hermes, configuraciones de
-los servicios multimedia, Syncthing, Navidrome y Caddy. Todos ellos se
-consideran datos de producción.
+los servicios multimedia, Syncthing, Navidrome, Caddy y la configuración de
+Yubal (`/srv/homelab/yubal/config`). Todos ellos se consideran datos de
+producción.
+
+Yubal se incluye mediante `EXTRA_DIRS` en
+`/etc/default/docker-volume-backup`; también figura en
+`STOP_CONTAINERS_BY_NAME` para detenerlo mientras se archiva su configuración.
+La biblioteca musical compartida en `/root/storage/syncthing/music` no está
+incluida en este backup.
 
 ## Exclusiones
 
