@@ -32,8 +32,9 @@ cambia después, hay que actualizar también la contraseña del rol existente o
 el backend no podrá arrancar y el navegador puede mostrarlo erróneamente como
 un fallo de CORS.
 
-El script clona el backend y frontend en un directorio temporal para construir
-las imágenes. El directorio de despliegue no contiene código de aplicación.
+El script descarga las imágenes publicadas de backend y frontend desde GitHub
+Container Registry. El directorio de despliegue no contiene código de
+aplicación.
 
 ## Cloudflare Tunnel
 

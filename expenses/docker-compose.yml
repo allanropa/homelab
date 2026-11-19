@@ -14,8 +14,7 @@ services:
       retries: 10
 
   backend:
-    build:
-      context: ${BACKEND_CONTEXT:-.}
+    image: ghcr.io/allanropa/expenses-be:latest
     env_file:
       - /etc/homelab/secrets/expenses.env
     depends_on:
@@ -31,8 +30,7 @@ services:
       - cloudflared
 
   frontend:
-    build:
-      context: ${FRONTEND_CONTEXT:-.}
+    image: ghcr.io/allanropa/expenses-fe:latest
     depends_on:
       - backend
     expose:

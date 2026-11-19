@@ -2,17 +2,6 @@
 set -euo pipefail
 
 script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
-source_dir="$(mktemp -d -t expenses-deploy.XXXXXX)"
-
-cleanup() {
-  rm -rf "$source_dir"
-}
-trap cleanup EXIT
-
-backend_repo="${BACKEND_REPOSITORY:-git@github.com:allanropa/expenses-be.git}"
-frontend_repo="${FRONTEND_REPOSITORY:-git@github.com:allanropa/expenses-fe.git}"
-backend_branch="${BACKEND_BRANCH:-master}"
-frontend_branch="${FRONTEND_BRANCH:-master}"
 
 compose=(
   docker compose
@@ -27,17 +16,11 @@ if [ ! -f /etc/homelab/secrets/expenses.env ]; then
   exit 1
 fi
 
-echo "==> Cloning backend"
-git clone --depth 1 --branch "$backend_branch" "$backend_repo" "$source_dir/backend"
+echo "==> Downloading application images"
+"${compose[@]}" pull backend frontend
 
-echo "==> Cloning frontend"
-git clone --depth 1 --branch "$frontend_branch" "$frontend_repo" "$source_dir/frontend"
-
-export BACKEND_CONTEXT="$source_dir/backend"
-export FRONTEND_CONTEXT="$source_dir/frontend"
-
-echo "==> Rebuilding and redeploying"
-"${compose[@]}" up -d --build
+echo "==> Deploying"
+"${compose[@]}" up -d
 
 if [ "$("${compose[@]}" ps -q backend | xargs -r docker inspect -f '{{.State.Status}}' 2>/dev/null)" != "running" ]; then
   echo "Backend did not stay running. Recent logs:"
