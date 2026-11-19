@@ -1,6 +1,6 @@
 services:
   metadata:
-    image: ghcr.io/jonny-ponny/metadata-docker:latest
+    image: ghcr.io/allanropa/metadata-docker:latest
     container_name: metadata-docker
     restart: unless-stopped
     env_file:
